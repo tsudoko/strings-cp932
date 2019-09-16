@@ -3,7 +3,10 @@
 #include <string.h>
 
 // needs to be at least 2
-#define BUFLEN 3
+#define BUFLEN 4
+
+typedef unsigned long Rune;
+#include "_cp932tab.c"
 
 int
 main(int argc, char **argv)
@@ -45,9 +48,11 @@ main(int argc, char **argv)
 					break;
 				}
 
-				if(*c % 2 == 0 &&
-					(c[1] >= 0x9f && c[1] <= 0xfc) ||
-					(c[1] >= 0x40 && c[1] <= 0x9e && c[1] != 0x7f)
+				if(
+					(*c % 2 == 0 &&
+						(c[1] >= 0x9f && c[1] <= 0xfc) ||
+						(c[1] >= 0x40 && c[1] <= 0x9e && c[1] != 0x7f)) &&
+					cp932tab[c[1] | (c[0] << 8)] != 0
 				) {
 					if(!waschar) { putchar('\n'); waschar = 1; }
 					putchar(*c++);
