@@ -9,14 +9,8 @@ typedef unsigned long Rune;
 #include "_cp932tab.c"
 
 int
-main(int argc, char **argv)
+strings(FILE *f)
 {
-	if(argc < 2) {
-		fprintf(stderr, "usage: %s file\n", argv[0]);
-		return EXIT_FAILURE;
-	}
-
-	FILE *f = fopen(argv[1], "rb");
 	unsigned char buf[BUFLEN], *c = buf, *cend;
 	size_t n;
 	_Bool waschar = 0;
@@ -66,4 +60,12 @@ main(int argc, char **argv)
 	putchar('\n');
 
 	return EXIT_SUCCESS;
+}
+
+int
+main(int argc, char **argv)
+{
+	if(argc < 2)
+		return strings(stdin);
+	return strings(fopen(argv[1], "rb"));
 }
