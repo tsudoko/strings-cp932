@@ -26,15 +26,17 @@ main(int argc, char **argv)
 		toread = BUFLEN;
 
 		while(c-buf < BUFLEN) {
-			if((*c < 0x7f && *c >= 0x20)) {
+			if((*c < 0x7f && *c >= 0x20) || (*c >= 0xa1 && *c <=0xdf)) {
 				if(!waschar) { putchar('\n'); waschar = 1; }
 				putchar(*c++);
 				continue;
 			}
 
 			if(
-				(*c >= 0x81 && *c <= 0x9f) ||
-				(*c >= 0xe0 && *c <= 0xef) || // sjis
+				(*c >= 0x81 && *c <= 0x84) ||
+				(*c >= 0x87 && *c <= 0x9f) ||
+				(*c >= 0xe0 && *c <= 0xea) || // sjis
+				(*c >= 0xed && *c <= 0xee) ||
 				(*c >= 0xfa && *c <= 0xfc) // cp932 extensions
 			) {
 				if(BUFLEN-(c-buf) < 2) {
