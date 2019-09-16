@@ -48,12 +48,7 @@ main(int argc, char **argv)
 					break;
 				}
 
-				if(
-					(*c % 2 == 0 &&
-						(c[1] >= 0x9f && c[1] <= 0xfc) ||
-						(c[1] >= 0x40 && c[1] <= 0x9e && c[1] != 0x7f)) &&
-					cp932tab[c[1] | (c[0] << 8)] != 0
-				) {
+				if(cp932tab[c[1] | (c[0] << 8)] != 0) {
 					if(!waschar) { putchar('\n'); waschar = 1; }
 					putchar(*c++);
 					putchar(*c++);
