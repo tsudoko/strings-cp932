@@ -67,5 +67,11 @@ main(int argc, char **argv)
 {
 	if(argc < 2)
 		return strings(stdin);
-	return strings(fopen(argv[1], "rb"));
+
+	for(int i = 0; i < argc; i++) {
+		FILE *f = fopen(argv[i], "rb");
+		if(strings(f) != EXIT_SUCCESS)
+			return EXIT_FAILURE;
+		fclose(f);
+	}
 }
