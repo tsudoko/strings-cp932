@@ -3,7 +3,7 @@
 #include <string.h>
 
 // needs to be at least 2
-#define BUFLEN 4
+#define BUFLEN 4096
 
 typedef unsigned long Rune;
 #include "_cp932tab.c"
@@ -17,18 +17,18 @@ main(int argc, char **argv)
 	}
 
 	FILE *f = fopen(argv[1], "rb");
-	unsigned char buf[BUFLEN], *c = buf;
-	size_t n, toread = BUFLEN;
+	unsigned char buf[BUFLEN], *c = buf, *cend;
+	size_t n;
 	_Bool waschar = 0;
 	while(!feof(f)) {
-		if((n = fread(c, 1, toread, f)) != toread && ferror(f)) {
+		if((n = fread(c, 1, BUFLEN-(c-buf), f)) != BUFLEN-(c-buf) && ferror(f)) {
 				fprintf(stderr, "read error at %ld\n", ftell(f));
 				return EXIT_FAILURE;
 		}
-		fprintf(stderr, "read %d\n", n);
-		toread = BUFLEN;
+		cend = c+n;
+		c = buf;
 
-		while(c-buf < BUFLEN) {
+		while(c < cend) {
 			if((*c < 0x7f && *c >= 0x20) || (*c >= 0xa1 && *c <=0xdf)) {
 				if(!waschar) { putchar('\n'); waschar = 1; }
 				putchar(*c++);
@@ -42,9 +42,9 @@ main(int argc, char **argv)
 				(*c >= 0xed && *c <= 0xee) ||
 				(*c >= 0xfa && *c <= 0xfc) // cp932 extensions
 			) {
-				if(BUFLEN-(c-buf) < 2) {
-					memmove(buf, c, BUFLEN-(c-buf));
-					toread = c-buf;
+				if(cend-c < 2) {
+					memmove(buf, c, cend-c);
+					c = buf + (cend-c);
 					break;
 				}
 
@@ -59,7 +59,9 @@ main(int argc, char **argv)
 			waschar = 0;
 			c++;
 		}
-		c = buf;
+
+		if(c == cend)
+			c = buf;
 	}
 	putchar('\n');
 
