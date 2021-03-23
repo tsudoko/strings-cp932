@@ -16,8 +16,8 @@ strings(FILE *f)
 	_Bool waschar = 0;
 	while(!feof(f)) {
 		if((n = fread(c, 1, BUFLEN-(c-buf), f)) != BUFLEN-(c-buf) && ferror(f)) {
-				fprintf(stderr, "read error at %ld\n", ftell(f));
-				return EXIT_FAILURE;
+			fprintf(stderr, "read error at %ld\n", ftell(f));
+			return EXIT_FAILURE;
 		}
 		cend = c+n;
 		c = buf;
