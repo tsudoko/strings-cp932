@@ -70,6 +70,11 @@ main(int argc, char **argv)
 
 	for(int i = 1; i < argc; i++) {
 		FILE *f = fopen(argv[i], "rb");
+		if(f == NULL) {
+			fputs("failed to open ", stderr);
+			perror(argv[i]);
+			continue;
+		}
 		if(strings(f) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
 		fclose(f);
