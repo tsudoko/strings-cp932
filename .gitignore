@@ -1,0 +1,6 @@
+strings-cp932
+*.exe
+*.obj
+[a012568kqv].out
+*.[o012568kqv]
+_*.c
