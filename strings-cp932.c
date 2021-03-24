@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +16,7 @@ strings(FILE *f, char offfmt)
 	unsigned char buf[BUFLEN], *c = buf, *cend;
 	size_t n;
 	unsigned long long offset = 0;
-	_Bool waschar = 0;
+	bool waschar = 0;
 	while(!feof(f)) {
 		if((n = fread(c, 1, BUFLEN-(c-buf), f)) != BUFLEN-(c-buf) && ferror(f)) {
 			fprintf(stderr, "read error at %ld\n", ftell(f));
