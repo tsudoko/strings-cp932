@@ -1,0 +1,31 @@
+
+     STRINGS-CP932(1)          (2021-03-24)           STRINGS-CP932(1)
+
+     NAME
+          strings-cp932 - extract printable windows-31j/cp932 strings
+
+     SYNOPSIS
+          strings-cp932 [-t format] [file...]
+
+     DESCRIPTION
+          Strings-cp932 finds and prints strings containing printable
+          Windows-31J-encoded characters in a file, default standard
+          input. Printable characters are taken to be ASCII characters
+          from blank through tilde (hexadecimal 20 through 7E),
+          inclusive, and all other characters defined in the Windows-
+          31J character set. If -t is passed, strings-cp932 prepends
+          file offsets to found strings. The format argument passed to
+          -t can be d for decimal offsets, x for hexadecimal offsets
+          or o for octal offsets.
+
+     BUGS
+          -n is not supported for now; even 1-character strings are
+          printed. You can pipe the output of strings-cp932 to awk
+          'length($0)>n'  (or awk 'length($0)-length($1)-1>n' if
+          you're using -t) where n is the desired minimum length if
+          you want to filter out shorter strings.
+
+     SEE ALSO
+          https://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP932.TXT
+          - Windows-31J mapping table used by strings-cp932
+
