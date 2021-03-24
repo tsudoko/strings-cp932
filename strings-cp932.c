@@ -154,4 +154,6 @@ main(int argc, char **argv)
 			return EXIT_FAILURE;
 		fclose(f);
 	}
+
+	return EXIT_SUCCESS;
 }
