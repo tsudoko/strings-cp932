@@ -90,7 +90,7 @@ struct opts {
 void
 argparse(int *argc, char **argv, struct opts *opts)
 {
-	enum opt nextopt;
+	enum opt nextopt = OPT_NONE;
 	for(int i = 1; i < *argc; i++) {
 		if(argv[i][0] == '-') {
 			switch(argv[i][1]) {
