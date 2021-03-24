@@ -9,10 +9,12 @@ typedef unsigned long Rune;
 #include "_cp932tab.c"
 
 int
-strings(FILE *f)
+strings(FILE *f, char offfmt)
 {
+	char fmt[] = {'%', offfmt, ' ', '\0'};
 	unsigned char buf[BUFLEN], *c = buf, *cend;
 	size_t n;
+	unsigned long long offset = 0;
 	_Bool waschar = 0;
 	while(!feof(f)) {
 		if((n = fread(c, 1, BUFLEN-(c-buf), f)) != BUFLEN-(c-buf) && ferror(f)) {
@@ -24,8 +26,14 @@ strings(FILE *f)
 
 		while(c < cend) {
 			if((*c < 0x7f && *c >= 0x20) || (*c >= 0xa1 && *c <=0xdf)) {
-				if(!waschar) { putchar('\n'); waschar = 1; }
+				if(!waschar) {
+					putchar('\n');
+					waschar = 1;
+					if(offfmt)
+						printf(fmt, offset);
+				}
 				putchar(*c++);
+				offset++;
 				continue;
 			}
 
@@ -43,15 +51,22 @@ strings(FILE *f)
 				}
 
 				if(cp932tab[c[1] | (c[0] << 8)] != 0) {
-					if(!waschar) { putchar('\n'); waschar = 1; }
+					if(!waschar) {
+						putchar('\n');
+						waschar = 1;
+						if(offfmt)
+							printf(fmt, offset);
+					}
 					putchar(*c++);
 					putchar(*c++);
+					offset += 2;
 					continue;
 				}
 			}
 
 			waschar = 0;
 			c++;
+			offset++;
 		}
 
 		if(c == cend)
@@ -62,11 +77,71 @@ strings(FILE *f)
 	return EXIT_SUCCESS;
 }
 
+enum opt {
+	OPT_NONE,
+	OPT_OFFFMT,
+};
+
+struct opts {
+	char offfmt;
+};
+
+void
+argparse(int *argc, char **argv, struct opts *opts)
+{
+	enum opt nextopt;
+	for(int i = 1; i < *argc; i++) {
+		if(argv[i][0] == '-') {
+			switch(argv[i][1]) {
+			case 'a':
+				break;
+			case 't':
+				nextopt = OPT_OFFFMT;
+				break;
+			default:
+				fprintf(stderr, "unrecognized option %s\n", argv[i]);
+			}
+			if(i+1 < *argc) {
+				memmove(&argv[i], &argv[i+1], (*argc-i) * (sizeof argc));
+				i--;
+			}
+			(*argc)--;
+		} else if(nextopt != OPT_NONE) {
+			switch(nextopt) {
+			case OPT_OFFFMT:
+				if(argv[i][0] != '\0' && argv[i][1] != '\0') {
+					fprintf(stderr, "unrecognized offset format %s\n", argv[i]);
+					break;
+				} else if(argv[i][0] != 'd' && argv[i][0] != 'x' && argv[i][0] != 'o') {
+					fprintf(stderr, "unrecognized offset format %c\n", argv[i][0]);
+					break;
+				}
+				opts->offfmt = argv[i][0];
+				break;
+			}
+			nextopt = OPT_NONE;
+			if(i+1 < *argc) {
+				memmove(&argv[i], &argv[i+1], (*argc-i) * (sizeof argc));
+				i--;
+			}
+			(*argc)--;
+		}
+	}
+
+	if(nextopt != OPT_NONE)
+		fprintf(stderr, "no argument given for -%c, ignoring\n", "\0t"[nextopt]);
+}
+
 int
 main(int argc, char **argv)
 {
+	struct opts opts = {
+		.offfmt = '\0',
+	};
+	argparse(&argc, argv, &opts);
+
 	if(argc < 2)
-		return strings(stdin);
+		return strings(stdin, opts.offfmt);
 
 	for(int i = 1; i < argc; i++) {
 		FILE *f = fopen(argv[i], "rb");
@@ -75,7 +150,7 @@ main(int argc, char **argv)
 			perror(argv[i]);
 			continue;
 		}
-		if(strings(f) != EXIT_SUCCESS)
+		if(strings(f, opts.offfmt) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
 		fclose(f);
 	}
