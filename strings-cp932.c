@@ -9,6 +9,15 @@
 typedef unsigned long Rune;
 #include "_cp932tab.c"
 
+static inline void
+eputchar(int c)
+{
+	if(putchar(c) == EOF) {
+		fputs("putchar: write error\n", stderr);
+		exit(EXIT_FAILURE);
+	}
+}
+
 int
 strings(FILE *f, char offfmt)
 {
@@ -28,12 +37,12 @@ strings(FILE *f, char offfmt)
 		while(c < cend) {
 			if((*c < 0x7f && *c >= 0x20) || (*c >= 0xa1 && *c <=0xdf)) {
 				if(!waschar) {
-					putchar('\n');
+					eputchar('\n');
 					waschar = 1;
 					if(offfmt)
 						printf(fmt, offset);
 				}
-				putchar(*c++);
+				eputchar(*c++);
 				offset++;
 				continue;
 			}
@@ -53,13 +62,13 @@ strings(FILE *f, char offfmt)
 
 				if(cp932tab[c[1] | (c[0] << 8)] != 0) {
 					if(!waschar) {
-						putchar('\n');
+						eputchar('\n');
 						waschar = 1;
 						if(offfmt)
 							printf(fmt, offset);
 					}
-					putchar(*c++);
-					putchar(*c++);
+					eputchar(*c++);
+					eputchar(*c++);
 					offset += 2;
 					continue;
 				}
@@ -73,7 +82,7 @@ strings(FILE *f, char offfmt)
 		if(c == cend)
 			c = buf;
 	}
-	putchar('\n');
+	eputchar('\n');
 
 	return EXIT_SUCCESS;
 }
